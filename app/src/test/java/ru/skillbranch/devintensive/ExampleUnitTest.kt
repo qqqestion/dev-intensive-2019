@@ -3,10 +3,7 @@ package ru.skillbranch.devintensive
 import org.junit.Test
 
 import org.junit.Assert.*
-import ru.skillbranch.devintensive.extensions.TimeUnit
-import ru.skillbranch.devintensive.extensions.add
-import ru.skillbranch.devintensive.extensions.format
-import ru.skillbranch.devintensive.extensions.toUserView
+import ru.skillbranch.devintensive.extensions.*
 import ru.skillbranch.devintensive.models.*
 import ru.skillbranch.devintensive.utils.Utils
 import java.util.*
@@ -27,6 +24,38 @@ class ExampleUnitTest {
     fun test_transliteration() {
         assertEquals(Utils.transliteration("Женя Стереотипов"), "Zhenya Stereotipov")
         assertEquals(Utils.transliteration("Amazing Петр", "_"), "Amazing_Petr")
+    }
+
+    @Test
+    fun test_initials() {
+        assertEquals("JD", Utils.toInitials("john", "doe"))
+        assertEquals("J", Utils.toInitials("John", null))
+        assertEquals(null, Utils.toInitials(null, null))
+        assertEquals(null, Utils.toInitials(" ", ""))
+    }
+
+    @Test
+    fun test_parseFullName() {
+        assertEquals(Pair(null, null), Utils.parseFullName(null))
+        assertEquals(Pair(null, null), Utils.parseFullName(""))
+        assertEquals(Pair(null, null), Utils.parseFullName(" "))
+        assertEquals(Pair("John", null), Utils.parseFullName("John"))
+    }
+
+    @Test
+    fun test_humanizeDiff() {
+        assertEquals(Date().add(1, TimeUnit.SECOND).humanizeDiff(), "только что")
+        assertEquals(Date().add(-1, TimeUnit.MINUTE).humanizeDiff(), "минуту назад")
+        assertEquals(Date().add(-2, TimeUnit.MINUTE).humanizeDiff(), "2 минуты назад")
+        assertEquals(Date().add(-44, TimeUnit.MINUTE).humanizeDiff(), "44 минуты назад")
+        // Ебаная параша
+        assertEquals(Date().add(-2, TimeUnit.HOUR).humanizeDiff(), "2 часа назад")
+        assertEquals(Date().add(-5, TimeUnit.DAY).humanizeDiff(), "5 дней назад")
+        // Ебаная параша
+        assertEquals(Date().add(2, TimeUnit.MINUTE).humanizeDiff(), "через 2 минуты")
+        assertEquals(Date().add(7, TimeUnit.DAY).humanizeDiff(), "через 7 дней")
+        assertEquals(Date().add(-400, TimeUnit.DAY).humanizeDiff(), "более года назад")
+        assertEquals(Date().add(400, TimeUnit.DAY).humanizeDiff(), "более чем через год")
     }
 
     @Test

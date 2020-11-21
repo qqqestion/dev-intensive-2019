@@ -2,6 +2,9 @@ package ru.skillbranch.devintensive.utils
 
 object Utils {
     fun parseFullName(fullName: String?): Pair<String?, String?> {
+        if (fullName.isNullOrEmpty() || fullName.isNullOrBlank()) {
+            return Pair(null, null)
+        }
         val parts: List<String>? = fullName?.split(" ")
         val firstName = parts?.getOrNull(0)
         val lastName = parts?.getOrNull(1)
@@ -61,6 +64,19 @@ object Utils {
     }
 
     fun toInitials(firstName: String?, lastName: String?): String? {
-        return ""
+        val trimmedFirstName = firstName?.trim()
+        val trimmedLastName = lastName?.trim()
+        var initials = "${if (trimmedFirstName?.getOrNull(0)
+                ?.toUpperCase() == null
+        ) "" else trimmedFirstName?.get(0)
+            ?.toUpperCase().toString()}${if (trimmedLastName?.getOrNull(0)
+                ?.toUpperCase() == null
+        ) "" else trimmedLastName?.get(0)
+            ?.toUpperCase().toString()}"
+        return if (initials == "") {
+            null
+        } else {
+            initials
+        }
     }
 }

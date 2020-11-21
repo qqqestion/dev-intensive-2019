@@ -32,9 +32,6 @@ data class User(
     companion object Factory {
         private var lastId: Int = -1
         fun makeUser(fullName: String?): User {
-//            if (fullName.isNullOrBlank() || fullName.isNullOrEmpty()) {
-//                throw IllegalArgumentException("full name must contain two words")
-//            }
             lastId++
             val (firstName, lastName) = Utils.parseFullName(fullName)
             return User(id = "$lastId", firstName = firstName, lastName = lastName)
