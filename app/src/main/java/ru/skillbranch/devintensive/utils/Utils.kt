@@ -1,82 +1,45 @@
 package ru.skillbranch.devintensive.utils
 
 object Utils {
+
+    private val translitMap = mapOf(
+        'а' to "a", 'б' to "b", 'в' to "v", 'г' to "g", 'д' to "d", 'е' to "e", 'ё' to "e", 'ж' to "zh", 'з' to "z",
+        'и' to "i", 'й' to "i", 'к' to "k", 'л' to "l", 'м' to "m", 'н' to "n", 'о' to "o", 'п' to "p", 'р' to "r",
+        'с' to "s", 'т' to "t", 'у' to "u", 'ф' to "f", 'х' to "h", 'ц' to "c", 'ч' to "ch", 'ш' to "sh", 'щ' to "sh",
+        'ъ' to "", 'ы' to "i", 'ь' to "", 'э' to "e", 'ю' to "yu", 'я' to "ya"
+    )
+
     fun parseFullName(fullName: String?): Pair<String?, String?> {
-        if (fullName.isNullOrEmpty() || fullName.isNullOrBlank()) {
-            return Pair(null, null)
-        }
-        val parts: List<String>? = fullName?.split(" ")
-        val firstName = parts?.getOrNull(0)
-        val lastName = parts?.getOrNull(1)
-        return Pair(firstName, lastName)
+        val parts: List<String>? = fullName?.trim()?.replace(Regex(" +"), " ")?.split(" ")
+
+        val firstName = parts?.notEmptyOrNullAt(0)
+        val lastName = parts?.notEmptyOrNullAt(1)
+
+        return firstName to firstName
+    }
+
+    private fun List<String>.notEmptyOrNullAt(index: Int) = getOrNull(index).let {
+        if ("" == it) null
+        else it
     }
 
     fun transliteration(payload: String, divider: String = " "): String {
-        val transMap = hashMapOf(
-            Pair("а", "a"),
-            Pair("б", "b"),
-            Pair("в", "v"),
-            Pair("г", "g"),
-            Pair("д", "d"),
-            Pair("е", "e"),
-            Pair("ё", "e"),
-            Pair("ж", "zh"),
-            Pair("з", "z"),
-            Pair("и", "i"),
-            Pair("й", "i"),
-            Pair("к", "k"),
-            Pair("л", "l"),
-            Pair("м", "m"),
-            Pair("н", "n"),
-            Pair("о", "o"),
-            Pair("п", "p"),
-            Pair("р", "r"),
-            Pair("с", "s"),
-            Pair("т", "t"),
-            Pair("у", "u"),
-            Pair("ф", "f"),
-            Pair("х", "h"),
-            Pair("ц", "c"),
-            Pair("ч", "ch"),
-            Pair("ш", "sh"),
-            Pair("щ", "sh'"),
-            Pair("ъ", ""),
-            Pair("ы", "i"),
-            Pair("ь", ""),
-            Pair("э", "e"),
-            Pair("ю", "yu"),
-            Pair("я", "ya"),
-            Pair(" ", divider)
-        )
-        var newString = ""
-        for (char in payload) {
-            if (transMap.containsKey(char.toLowerCase().toString())) {
-                newString += if (char.isUpperCase()) {
-                    transMap[char.toLowerCase().toString()]!!.capitalize()
-                } else {
-                    transMap[char.toLowerCase().toString()]
-                }
-            } else {
-                newString += char
+        var result = ""
+        payload.forEach {
+            result += when {
+                it == ' ' -> divider
+                it.isUpperCase() -> translitMap[it.toLowerCase()]?.capitalize() ?: it.toString()
+                else -> translitMap[it] ?: it.toString()
             }
         }
-        return newString
+        return result
     }
 
-    fun toInitials(firstName: String?, lastName: String?): String? {
-        val trimmedFirstName = firstName?.trim()
-        val trimmedLastName = lastName?.trim()
-        var initials = "${if (trimmedFirstName?.getOrNull(0)
-                ?.toUpperCase() == null
-        ) "" else trimmedFirstName?.get(0)
-            ?.toUpperCase().toString()}${if (trimmedLastName?.getOrNull(0)
-                ?.toUpperCase() == null
-        ) "" else trimmedLastName?.get(0)
-            ?.toUpperCase().toString()}"
-        return if (initials == "") {
-            null
-        } else {
-            initials
-        }
+    fun toInitials(firstName: String?, lastName: String?): String? = when {
+        firstName.isNullOrBlank() && lastName.isNullOrBlank() -> null
+        !firstName.isNullOrBlank() && lastName.isNullOrBlank() -> firstName[0].toUpperCase().toString()
+        firstName.isNullOrBlank() && !lastName.isNullOrBlank() -> lastName[0].toUpperCase().toString()
+        !firstName.isNullOrBlank() && !lastName.isNullOrBlank() -> firstName[0].toUpperCase() + lastName[0].toUpperCase().toString()
+        else -> throw IllegalStateException("Incorrect state in 'when' expression")
     }
 }
